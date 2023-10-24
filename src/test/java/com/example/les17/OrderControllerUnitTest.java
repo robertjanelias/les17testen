@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 
 @WebMvcTest(OrderController.class)
 @ActiveProfiles("test")
-//@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(addFilters = false)
 class OrderControllerUnitTest {
     @Autowired
     MockMvc mockMvc;
@@ -34,7 +34,7 @@ class OrderControllerUnitTest {
     OrderService orderService;
 
     @Test
-    @WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
+    //@WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
     void shouldRetrieveCorrectOrder() throws Exception {
 
         OrderDto odto = new OrderDto();
