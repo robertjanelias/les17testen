@@ -44,4 +44,33 @@ class OrderControllerIntegrationTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isCreated());
     }
+
+    @Test
+    void shouldGetCorrectOrder() throws Exception {
+
+        String requestJson = """
+                {
+                    "productname" : "Gibson gitaar",
+                    "unitprice" : 2399.00,
+                    "quantity" :  5
+                }
+                """;
+
+        MvcResult result = this.mockMvc
+                .perform(MockMvcRequestBuilders.post("/orders")
+                        .contentType(APPLICATION_JSON_UTF8)
+                        .content(requestJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn();
+
+        String createdId = result.getResponse().getContentAsString();
+
+        this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/orders/" + createdId))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.productname", is("Gibson gitaar")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.orderid", is(Integer.parseInt(createdId))));
+    }
 }

@@ -52,4 +52,18 @@ class OrderControllerUnitTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.unitprice", is(1500.0)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.quantity", is(5)));
     }
+
+    @Test
+    @WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
+    void shouldCalculateCorrectOrderAmount() throws Exception {
+
+        Mockito.when(orderService.getAmount(456)).thenReturn(3001.0);
+
+        this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/orders/456/invoice"))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.orderid", is(456)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount", is(3001.0)));
+    }
 }

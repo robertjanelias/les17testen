@@ -26,6 +26,7 @@ public class OrderService {
         if (oo.isPresent()) {
             Order o = oo.get();
             OrderDto odto = new OrderDto();
+            odto.orderid = o.getOrderid();
             odto.productname = o.getProductname();
             odto.unitprice = o.getUnitprice();
             odto.quantity = o.getQuantity();
