@@ -53,6 +53,7 @@ public class OrderService {
 
     private static OrderDto transferToDto(Order o) {
         OrderDto odto = new OrderDto();
+        odto.orderid = o.getOrderid();
         odto.productname = o.getProductname();
         odto.unitprice = o.getUnitprice();
         odto.quantity = o.getQuantity();
