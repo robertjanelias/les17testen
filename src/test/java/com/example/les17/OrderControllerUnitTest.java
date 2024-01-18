@@ -21,8 +21,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyInt;
 
 @WebMvcTest(OrderController.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc(addFilters = true)
 class OrderControllerUnitTest {
     @Autowired
     MockMvc mockMvc;
@@ -34,7 +33,7 @@ class OrderControllerUnitTest {
     OrderService orderService;
 
     @Test
-    //@WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
+    @WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
     void shouldRetrieveCorrectOrder() throws Exception {
 
         OrderDto odto = new OrderDto();
@@ -52,5 +51,19 @@ class OrderControllerUnitTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.productname", is("Batavus fiets")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.unitprice", is(1500.0)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.quantity", is(5)));
+    }
+
+    @Test
+    @WithMockUser(username="testuser", roles="USER")       // check authorization, not authentication
+    void shouldCalculateCorrectOrderAmount() throws Exception {
+
+        Mockito.when(orderService.getAmount(456)).thenReturn(3001.0);
+
+        this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/orders/456/invoice"))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.orderid", is(456)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount", is(3001.0)));
     }
 }

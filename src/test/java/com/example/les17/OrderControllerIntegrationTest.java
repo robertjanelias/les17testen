@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SpringBootTest
@@ -49,5 +50,36 @@ class OrderControllerIntegrationTest {
 
         // check location field in response header (using Hamcrest regex matcher)
         assertThat(result.getResponse().getHeader("Location"), matchesPattern("^.*/orders/" + createdId));
+    }
+
+    @Test
+    void shouldGetCorrectOrder() throws Exception {
+
+        String requestJson = """
+                {
+                    "productname" : "Gibson gitaar",
+                    "unitprice" : 2399.00,
+                    "quantity" :  5
+                }
+                """;
+
+        MvcResult result = this.mockMvc
+                .perform(MockMvcRequestBuilders.post("/orders")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andReturn();
+
+        String createdId = result.getResponse().getContentAsString();
+
+        this.mockMvc
+                .perform(MockMvcRequestBuilders.get("/orders/" + createdId))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.productname", is("Gibson gitaar")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.unitprice", is(2399.0)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.quantity", is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.orderid", is(Integer.parseInt(createdId))));
     }
 }
